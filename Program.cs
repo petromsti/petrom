@@ -30,6 +30,7 @@ namespace petrom
         private string[] _urls = new[]
         {
             "https://rmk-group.ru/ru",
+            "https://lenta.ru",
             "https://www.tmk-group.ru",
             "https://ya.ru",
             "https://www.polymetalinternational.com/ru",
@@ -251,3 +252,4 @@ namespace petrom
         }
     }
 }
+
