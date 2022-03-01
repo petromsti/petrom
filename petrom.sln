@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "petrom", "petrom.csproj", "{C9F55080-172D-4B09-9E9E-DF87471EB9C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9F55080-172D-4B09-9E9E-DF87471EB9C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9F55080-172D-4B09-9E9E-DF87471EB9C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9F55080-172D-4B09-9E9E-DF87471EB9C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9F55080-172D-4B09-9E9E-DF87471EB9C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1FA2559-4ED0-426A-A3D4-7ED05460AAE7}
+	EndGlobalSection
+EndGlobal
