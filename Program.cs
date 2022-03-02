@@ -242,7 +242,19 @@ namespace petrom
                 return;
 
             var req = WebRequest.Create(urlState.Url) as HttpWebRequest;
-            req.Timeout = 5000;
+            req.Timeout = 7000;
+
+            req.Headers["accept"] =
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'";
+            req.Headers["accept-encoding"] = "gzip, deflate, br";
+            req.Headers["accept-language"] = "ru-RU,ru;q=0.9";
+            req.Headers["cache-control"] = "max-age=0";
+            req.Headers["upgrade-insecure-requests"] = "1";
+            req.Headers["user-agent"] =
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36";
+
+
+
             var rs = new RequestState
             {
                 Request = req,
