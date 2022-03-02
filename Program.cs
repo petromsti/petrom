@@ -307,6 +307,7 @@ namespace petrom
                 Interlocked.Increment(ref state.UrlState.NumReadErrors);
                 Interlocked.Decrement(ref state.UrlState.NumRequestsInFlight);
                 state.Request.Abort();
+                return;
             }
             
             if (read > 0)
