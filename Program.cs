@@ -106,7 +106,7 @@ namespace petrom
         void ReloadOptions()
         {
             string[] newSites;
-            using (var fileStream = File.Open("opts.xml", FileMode.Open))
+            using (var fileStream = File.Open("opts.xml", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 var serializer = new XmlSerializer(typeof(Opts));
                 _opts = (Opts)serializer.Deserialize(fileStream);
@@ -229,15 +229,12 @@ namespace petrom
             //lets start with even reqs in flight per Url
             UrlState urlState = null;
 
-            lock (_urlStates)
+            foreach (var state in _urlStates)
             {
-                foreach (var state in _urlStates)
+                if (state.NumRequestsInFlight  < _opts.RequestsPerSite)
                 {
-                    if (state.NumRequestsInFlight  < _opts.RequestsPerSite)
-                    {
-                        urlState = state;
-                        break;
-                    }
+                    urlState = state;
+                    break;
                 }
             }
 
@@ -245,6 +242,7 @@ namespace petrom
                 return;
 
             var req = WebRequest.Create(urlState.Url) as HttpWebRequest;
+            req.Timeout = 5000;
             var rs = new RequestState
             {
                 Request = req,
@@ -266,7 +264,7 @@ namespace petrom
             {
                 resp = state.Request.EndGetResponse(ar) as HttpWebResponse;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 Interlocked.Add(ref state.UrlState.NumErrors, 1);
                 Interlocked.Decrement(ref state.UrlState.NumRequestsInFlight);
