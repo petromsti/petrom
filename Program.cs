@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -55,7 +56,7 @@ namespace petrom
             public int Num500Codes;
         }
 
-        private UrlState[] _urlStates;
+        private List<UrlState> _urlStates;
 
         private string[] _colNames = new string[]
         {
@@ -102,7 +103,37 @@ namespace petrom
             Console.WriteLine(_sb.ToString());
         }
 
+        void ReloadOptions()
+        {
+            string[] newSites;
+            using (var fileStream = File.Open("opts.xml", FileMode.Open))
+            {
+                var serializer = new XmlSerializer(typeof(Opts));
+                _opts = (Opts)serializer.Deserialize(fileStream);
+                newSites = _opts.Sites.Split('\n').Select(x => x.Trim(' ', '\r', '\t'))
+                    .Where(x => x != "")
+                    .ToArray();
+                _opts.RequestsPerSite = Math.Max(_opts.RequestsPerSite, 1);
+            }
+            //replace old sites with new sites
+            var oldSet = _urlStates.Select(x => x.Url).ToHashSet();
+            var newSet = newSites.ToHashSet();
 
+            var newUrlStates = new List<UrlState>();
+            foreach (var url in _urlStates)
+            {
+                if(newSet.Contains(url.Url))
+                    newUrlStates.Add(url);
+            }
+
+            foreach (var addr in newSites)
+            {
+                if (!oldSet.Contains(addr))
+                    newUrlStates.Add(new UrlState(){Url = addr});
+            }
+
+            _urlStates = newUrlStates;
+        }
 
         void Run()
         {
@@ -111,12 +142,6 @@ namespace petrom
             using (var fileStream = File.Open("opts.xml", FileMode.Open))
             {
                 var serializer = new XmlSerializer(typeof(Opts));
-                {
-                    var tw = new XmlTextWriter("test.xml", Encoding.UTF8);
-                    serializer.Serialize(tw, _opts);
-                    tw.Close();
-                }
-                
                 _opts = (Opts)serializer.Deserialize(fileStream);
                 sites = _opts.Sites.Split('\n').Select(x => x.Trim(' ', '\r', '\t'))
                     .Where(x => x != "")
@@ -127,14 +152,16 @@ namespace petrom
             _urlStates = sites.Select(u => new UrlState
             {
                 Url = u
-            }).ToArray();
+            }).ToList();
 
             //main loop
             var lastReportTime = new DateTime();
+            var lastReloadTime = new DateTime();
 
             while (true)
             {
-                var maxPerTick = 50;
+                var maxPerTick = 150;
+                //TODO: may not spawn enough
                 for (int i = 0; i < maxPerTick; ++i)
                 {
                     SpawnRequest();
@@ -144,8 +171,13 @@ namespace petrom
                 if (now >= lastReportTime.AddSeconds(1))
                 {
                     PrintStats(now, lastReportTime);
-
                     lastReportTime = now;
+                }
+
+                if (now >= lastReloadTime.AddSeconds(2))
+                {
+                    ReloadOptions();
+                    lastReloadTime = now;
                 }
 
                 Thread.Sleep(50);
