@@ -2,6 +2,11 @@
 <RequestsPerSite>2</RequestsPerSite>
 <ReportNumRows>25</ReportNumRows>
 <Sites>
+  https://ddos-guard.net/ru
+  https://stormwall.pro/
+  https://qrator.net/ru/
+  https://solidwall.ru/
+  http://government.ru/
   https://xn--90aivcdt6dxbc.xn--p1ai/
   https://mail.rkn.gov.ru/
   https://cloud.rkn.gov.ru
