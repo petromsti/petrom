@@ -276,6 +276,7 @@ namespace petrom
                 {
                     Interlocked.Increment(ref urlState.NumErrors);
                     Interlocked.Decrement(ref urlState.NumRequestsInFlight);
+                    resp.Dispose();
                     return;
                 }
 
@@ -283,6 +284,7 @@ namespace petrom
                 //resp.Content.ReadAsStreamAsync()
                 Interlocked.Add(ref urlState.Rx, s.Length);
                 Interlocked.Decrement(ref urlState.NumRequestsInFlight);
+                resp.Dispose();
             });
             return;
 
