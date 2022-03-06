@@ -138,13 +138,9 @@ namespace petrom
 
             foreach (var addr in newSites)
             {
-                if (!addr.Contains("roskazna"))
-                  continue;
                 if (!oldSet.Contains(addr))
                 {
                     newUrlStates.Add(new UrlState() {Url = addr});
-                 //   ServicePointManager.FindServicePoint(new Uri(addr)).ConnectionLimit = 1024;
-                    //HttpClientHandler
                 }
             }
 
