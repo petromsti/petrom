@@ -159,6 +159,7 @@ namespace petrom
             _httpClient.DefaultRequestHeaders.Add("upgrade-insecure-requests", "1");
             _httpClient.DefaultRequestHeaders.Add("user-agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36");
+            _httpClient.Timeout = TimeSpan.FromSeconds(6);
 
             //main loop
             var lastReportTime = new DateTime();
