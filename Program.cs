@@ -271,7 +271,7 @@ namespace petrom
                 Interlocked.Increment(ref _numTotalRequests);
                 Interlocked.Increment(ref urlState.NumRequests);
 
-                var resp = await _httpClient.GetAsync(urlState.Url);
+                var resp = await _httpClient.GetAsync(urlState.Url).ConfigureAwait(false);
                 HandleStatus(urlState, resp);
 
                 if (resp.StatusCode != HttpStatusCode.OK)
@@ -282,7 +282,7 @@ namespace petrom
                     return;
                 }
 
-                var s = await resp.Content.ReadAsByteArrayAsync();
+                var s = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                 //resp.Content.ReadAsStreamAsync()
                 Interlocked.Add(ref urlState.Rx, s.Length);
                 Interlocked.Decrement(ref urlState.NumRequestsInFlight);
