@@ -270,9 +270,10 @@ namespace petrom
                 Interlocked.Increment(ref urlState.NumRequests);
 
                 var resp = await _httpClient.GetAsync(urlState.Url);
+                HandleStatus(urlState, resp);
+
                 if (resp.StatusCode != HttpStatusCode.OK)
                 {
-                    HandleStatus(urlState, resp);
                     Interlocked.Increment(ref urlState.NumErrors);
                     Interlocked.Decrement(ref urlState.NumRequestsInFlight);
                     return;
