@@ -4,9 +4,11 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -25,6 +27,7 @@ namespace petrom
         private Opts _opts;
         private Int64 _totalRx;
         private Int64 _numTotalRequests;
+        private HttpClient _httpClient = new HttpClient();
         class RequestState
         {
             public HttpWebRequest Request;
@@ -134,17 +137,28 @@ namespace petrom
             foreach (var addr in newSites)
             {
                 if (!oldSet.Contains(addr))
-                    newUrlStates.Add(new UrlState(){Url = addr});
+                {
+                    newUrlStates.Add(new UrlState() {Url = addr});
+                    ServicePointManager.FindServicePoint(new Uri(addr)).ConnectionLimit = 1024;
+                }
             }
 
             _urlStates = newUrlStates;
         }
-
         void Run()
         {
             _opts = new Opts();
             _urlStates = new List<UrlState>();
+
             ReloadOptions();
+
+            _httpClient.DefaultRequestHeaders.Add("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'");
+            _httpClient.DefaultRequestHeaders.Add("accept-encoding", "gzip, deflate, br");
+            _httpClient.DefaultRequestHeaders.Add("accept-language", "ru-RU,ru;q=0.9");
+            _httpClient.DefaultRequestHeaders.Add("cache-control" , "max-age=0");
+            _httpClient.DefaultRequestHeaders.Add("upgrade-insecure-requests", "1");
+            _httpClient.DefaultRequestHeaders.Add("user-agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36");
 
             //main loop
             var lastReportTime = new DateTime();
@@ -241,8 +255,32 @@ namespace petrom
             if (urlState == null)
                 return;
 
+            Interlocked.Increment(ref urlState.NumRequestsInFlight);
+
+            Task.Run(async () =>
+            {
+                Interlocked.Increment(ref _numTotalRequests);
+                Interlocked.Increment(ref urlState.NumRequests);
+
+                var resp = await _httpClient.GetAsync(urlState.Url);
+                if (resp.StatusCode != HttpStatusCode.OK)
+                {
+                    HandleStatus(urlState, resp);
+                    Interlocked.Increment(ref urlState.NumErrors);
+                    Interlocked.Decrement(ref urlState.NumRequestsInFlight);
+                    return;
+                }
+
+                var s = await resp.Content.ReadAsByteArrayAsync();
+                Interlocked.Add(ref urlState.Rx, s.Length);
+                Interlocked.Decrement(ref urlState.NumRequestsInFlight);
+            });
+            return;
+
             var req = WebRequest.Create(urlState.Url) as HttpWebRequest;
             req.Timeout = 7000;
+            req.Proxy = null;
+            //req.
 
             req.Headers["accept"] =
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'";
@@ -266,6 +304,26 @@ namespace petrom
             Interlocked.Increment(ref urlState.NumRequestsInFlight);
 
             req.BeginGetResponse(RespCallback, rs);
+        }
+
+        private void HandleStatus(UrlState state, HttpResponseMessage resp)
+        {
+            var code = (int) resp.StatusCode;
+            if (code < 300)
+            {
+            }
+            else if (code < 400)
+            {
+                Interlocked.Increment(ref state.Num300Codes);
+            }
+            else if (code < 500)
+            {
+                Interlocked.Increment(ref state.Num400Codes);
+            }
+            else
+            {
+                Interlocked.Increment(ref state.Num500Codes);
+            }
         }
 
         void RespCallback(IAsyncResult ar)
