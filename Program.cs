@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -43,12 +44,12 @@ namespace petrom
             public string Url;
             public int NumRequestsInFlight;
             public int Rx;
-            public int PrevTx;
             public int NumErrors;
             public int NumReadErrors;
             public int NumRequests;
             public double Kbps;
             public double AvgKbps;
+            public double AvgRps;
 
             //code stats
             public int Num300Codes;
@@ -65,7 +66,8 @@ namespace petrom
             "Reqs",
             "Kbps",
             "Kbps(avg)",
-            "300/400/500"
+            "300/400/500",
+            "Rqps"
         };
 
         private int[] _cols = new int[]
@@ -75,7 +77,8 @@ namespace petrom
             10,
             10,
             10,
-            15
+            15,
+            5
         };
 
         private StringBuilder _sb = new StringBuilder();
@@ -114,6 +117,8 @@ namespace petrom
                     .Where(x => x != "")
                     .ToArray();
                 _opts.RequestsPerSite = Math.Max(_opts.RequestsPerSite, 1);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    _opts.RequestsPerSite = 2;//just for testing
             }
             //replace old sites with new sites
             var oldSet = _urlStates.Select(x => x.Url).ToHashSet();
@@ -137,22 +142,9 @@ namespace petrom
 
         void Run()
         {
-            string[] sites;
             _opts = new Opts();
-            using (var fileStream = File.Open("opts.xml", FileMode.Open))
-            {
-                var serializer = new XmlSerializer(typeof(Opts));
-                _opts = (Opts)serializer.Deserialize(fileStream);
-                sites = _opts.Sites.Split('\n').Select(x => x.Trim(' ', '\r', '\t'))
-                    .Where(x => x != "")
-                    .ToArray();
-                _opts.RequestsPerSite = Math.Max(_opts.RequestsPerSite, 1);
-            }
-
-            _urlStates = sites.Select(u => new UrlState
-            {
-                Url = u
-            }).ToList();
+            _urlStates = new List<UrlState>();
+            ReloadOptions();
 
             //main loop
             var lastReportTime = new DateTime();
@@ -191,6 +183,7 @@ namespace petrom
             PrintFmt(_cols, _colNames);
             var passed = (now - lastReportTime).TotalSeconds;
             var totalKbps = 0.0;
+            var totalRps = 0;
             foreach (var url in _urlStates)
             {
                 var rx = url.Rx;
@@ -200,6 +193,11 @@ namespace petrom
                 var k = 0.1;
                 url.AvgKbps = url.AvgKbps * (1 - k) + url.Kbps * k;
                 totalKbps += url.AvgKbps;
+
+                var rq = url.NumRequests;
+                Interlocked.Add(ref url.NumRequests, -rq);
+                var rqps = rq / passed;
+                url.AvgRps = url.AvgRps * (1 - k) + rqps * k;
             }
 
             var displayOrder = _urlStates.ToList();
@@ -213,7 +211,8 @@ namespace petrom
                     $"{url.NumRequestsInFlight} ({url.NumRequests})",
                     ((int) (url.Kbps)).ToString(),
                     $"{url.AvgKbps:F2}",
-                    $"{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}"
+                    $"{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
+                    $"{url.AvgRps:F2}"
                 );
             }
 
