@@ -245,6 +245,8 @@ namespace petrom
             Console.WriteLine($"Requests: {_numTotalRequests} RPS: {totalRqInSpan/passed:F2}");
         }
 
+        private TaskFactory tf =
+            new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.PreferFairness);
         void SpawnRequest()
         {
             //select Url
@@ -266,7 +268,7 @@ namespace petrom
 
             Interlocked.Increment(ref urlState.NumRequestsInFlight);
 
-            Task.Run(async () =>
+            tf.StartNew(async () =>
             {
                 Interlocked.Increment(ref _numTotalRequests);
                 Interlocked.Increment(ref urlState.NumRequests);
