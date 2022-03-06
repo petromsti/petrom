@@ -50,6 +50,7 @@ namespace petrom
             public int NumErrors;
             public int NumReadErrors;
             public int NumRequests;
+            public int NumTotalRequests;
             public double Kbps;
             public double AvgKbps;
             public double AvgRps;
@@ -137,6 +138,8 @@ namespace petrom
 
             foreach (var addr in newSites)
             {
+                if (!addr.Contains("roskazna"))
+                  continue;
                 if (!oldSet.Contains(addr))
                 {
                     newUrlStates.Add(new UrlState() {Url = addr});
@@ -152,9 +155,12 @@ namespace petrom
             _opts = new Opts();
             _urlStates = new List<UrlState>();
             var handler = new HttpClientHandler();
-            handler.MaxConnectionsPerServer = 256;
+            handler.MaxConnectionsPerServer = 80;
             handler.UseProxy = false;
+            handler.AllowAutoRedirect = true;
+            handler.UseDefaultCredentials = true;
             _httpClient = new HttpClient(handler);
+            _httpClient.Timeout = TimeSpan.FromSeconds(6);
 
             ReloadOptions();
 
@@ -165,7 +171,6 @@ namespace petrom
             _httpClient.DefaultRequestHeaders.Add("upgrade-insecure-requests", "1");
             _httpClient.DefaultRequestHeaders.Add("user-agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36");
-            _httpClient.Timeout = TimeSpan.FromSeconds(6);
 
             //main loop
             var lastReportTime = new DateTime();
@@ -217,6 +222,7 @@ namespace petrom
 
                 var rq = url.NumRequests;
                 Interlocked.Add(ref url.NumRequests, -rq);
+                url.NumTotalRequests += rq;
                 totalRqInSpan += rq;
                 var rqps = rq / passed;
                 url.AvgRps = url.AvgRps * (1 - k) + rqps * k;
@@ -225,12 +231,12 @@ namespace petrom
             var displayOrder = _urlStates.ToList();
             displayOrder.Sort((x, y) => -x.AvgKbps.CompareTo(y.AvgKbps));
 
-            foreach (var url in displayOrder.GetRange(0, _opts.ReportNumRows))
+            foreach (var url in displayOrder.GetRange(0, Math.Min(_opts.ReportNumRows, displayOrder.Count)))
             {
                 PrintFmt(_cols,
                     url.Url,
                     $"{url.NumErrors}/{url.NumReadErrors}",
-                    $"{url.NumRequestsInFlight} ({url.NumRequests})",
+                    $"{url.NumRequestsInFlight} ({url.NumTotalRequests})",
                     ((int) (url.Kbps)).ToString(),
                     $"{url.AvgKbps:F2}",
                     $"{url.Num200Codes}/{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
