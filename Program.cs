@@ -55,6 +55,7 @@ namespace petrom
             public double AvgRps;
 
             //code stats
+            public int Num200Codes;
             public int Num300Codes;
             public int Num400Codes;
             public int Num500Codes;
@@ -69,7 +70,7 @@ namespace petrom
             "Reqs",
             "Kbps",
             "Kbps(avg)",
-            "300/400/500",
+            "200/300/400/500",
             "Rqps"
         };
 
@@ -80,7 +81,7 @@ namespace petrom
             10,
             10,
             10,
-            15,
+            18,
             5
         };
 
@@ -152,6 +153,7 @@ namespace petrom
             _urlStates = new List<UrlState>();
             var handler = new HttpClientHandler();
             handler.MaxConnectionsPerServer = 256;
+            handler.UseProxy = false;
             _httpClient = new HttpClient(handler);
 
             ReloadOptions();
@@ -231,7 +233,7 @@ namespace petrom
                     $"{url.NumRequestsInFlight} ({url.NumRequests})",
                     ((int) (url.Kbps)).ToString(),
                     $"{url.AvgKbps:F2}",
-                    $"{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
+                    $"{url.Num200Codes}/{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
                     $"{url.AvgRps:F2}"
                 );
             }
@@ -277,6 +279,7 @@ namespace petrom
                 }
 
                 var s = await resp.Content.ReadAsByteArrayAsync();
+                //resp.Content.ReadAsStreamAsync()
                 Interlocked.Add(ref urlState.Rx, s.Length);
                 Interlocked.Decrement(ref urlState.NumRequestsInFlight);
             });
@@ -316,6 +319,7 @@ namespace petrom
             var code = (int) resp.StatusCode;
             if (code < 300)
             {
+                Interlocked.Increment(ref state.Num200Codes);
             }
             else if (code < 400)
             {
@@ -349,6 +353,7 @@ namespace petrom
             var code = (int)resp.StatusCode;
             if (code < 300)
             {
+                Interlocked.Increment(ref state.UrlState.Num200Codes);
             }
             else if (code < 400)
             {
