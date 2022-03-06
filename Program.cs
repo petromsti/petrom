@@ -27,7 +27,7 @@ namespace petrom
         private Opts _opts;
         private Int64 _totalRx;
         private Int64 _numTotalRequests;
-        private HttpClient _httpClient = new HttpClient();
+        private HttpClient _httpClient;
         class RequestState
         {
             public HttpWebRequest Request;
@@ -139,7 +139,8 @@ namespace petrom
                 if (!oldSet.Contains(addr))
                 {
                     newUrlStates.Add(new UrlState() {Url = addr});
-                    ServicePointManager.FindServicePoint(new Uri(addr)).ConnectionLimit = 1024;
+                 //   ServicePointManager.FindServicePoint(new Uri(addr)).ConnectionLimit = 1024;
+                    //HttpClientHandler
                 }
             }
 
@@ -149,6 +150,9 @@ namespace petrom
         {
             _opts = new Opts();
             _urlStates = new List<UrlState>();
+            var handler = new HttpClientHandler();
+            handler.MaxConnectionsPerServer = 256;
+            _httpClient = new HttpClient(handler);
 
             ReloadOptions();
 
