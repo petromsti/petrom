@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -51,6 +51,7 @@ namespace petrom
             public int NumReadErrors;
             public int NumRequests;
             public int NumTotalRequests;
+            public int NumTimeouts;
             public double Kbps;
             public double AvgKbps;
             public double AvgRps;
@@ -72,7 +73,8 @@ namespace petrom
             "Kbps",
             "Kbps(avg)",
             "200/300/400/500",
-            "Rqps"
+            "Rqps",
+            "Touts"
         };
 
         private int[] _cols = new int[]
@@ -83,6 +85,7 @@ namespace petrom
             10,
             10,
             18,
+            5,
             5
         };
 
@@ -236,7 +239,8 @@ namespace petrom
                     ((int) (url.Kbps)).ToString(),
                     $"{url.AvgKbps:F2}",
                     $"{url.Num200Codes}/{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
-                    $"{url.AvgRps:F2}"
+                    $"{url.AvgRps:F2}",
+                    url.NumTimeouts.ToString()
                 );
             }
 
@@ -270,25 +274,39 @@ namespace petrom
 
             tf.StartNew(async () =>
             {
-                Interlocked.Increment(ref _numTotalRequests);
-                Interlocked.Increment(ref urlState.NumRequests);
-
-                var resp = await _httpClient.GetAsync(urlState.Url).ConfigureAwait(false);
-                HandleStatus(urlState, resp);
-
-                if (resp.StatusCode != HttpStatusCode.OK)
+                HttpResponseMessage resp = null;
+                try
                 {
-                    Interlocked.Increment(ref urlState.NumErrors);
-                    Interlocked.Decrement(ref urlState.NumRequestsInFlight);
-                    resp.Dispose();
-                    return;
-                }
+                    Interlocked.Increment(ref _numTotalRequests);
+                    Interlocked.Increment(ref urlState.NumRequests);
 
-                var s = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                //resp.Content.ReadAsStreamAsync()
-                Interlocked.Add(ref urlState.Rx, s.Length);
-                Interlocked.Decrement(ref urlState.NumRequestsInFlight);
-                resp.Dispose();
+                    resp = await _httpClient.GetAsync(urlState.Url).ConfigureAwait(false);
+                    HandleStatus(urlState, resp);
+
+
+                    if (resp.StatusCode != HttpStatusCode.OK)
+                    {
+                        Interlocked.Increment(ref urlState.NumErrors);
+                        return;
+                    }
+
+                    var s = await resp.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                    //resp.Content.ReadAsStreamAsync()
+                    Interlocked.Add(ref urlState.Rx, s.Length);
+                }
+                catch (Exception ex)
+                {
+                    int a = 3;
+                    Interlocked.Increment(ref urlState.NumTimeouts);
+                    Interlocked.Increment(ref urlState.NumErrors);
+                }
+                finally
+                {
+                    if(resp != null)
+                        resp.Dispose();
+                    
+                    Interlocked.Decrement(ref urlState.NumRequestsInFlight);
+                }
             });
             return;
 
