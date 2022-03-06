@@ -183,7 +183,7 @@ namespace petrom
             PrintFmt(_cols, _colNames);
             var passed = (now - lastReportTime).TotalSeconds;
             var totalKbps = 0.0;
-            var totalRps = 0;
+            var totalRqInSpan = 0;
             foreach (var url in _urlStates)
             {
                 var rx = url.Rx;
@@ -196,6 +196,7 @@ namespace petrom
 
                 var rq = url.NumRequests;
                 Interlocked.Add(ref url.NumRequests, -rq);
+                totalRqInSpan += rq;
                 var rqps = rq / passed;
                 url.AvgRps = url.AvgRps * (1 - k) + rqps * k;
             }
@@ -218,7 +219,7 @@ namespace petrom
 
             Console.WriteLine($"Total kbps: {(int) totalKbps}");
             Console.WriteLine($"Total rx: {_totalRx / (1024 * 1024)} Mb");
-            Console.WriteLine($"Total requests: {_numTotalRequests}");
+            Console.WriteLine($"Requests: {_numTotalRequests} RPS: {totalRqInSpan/passed:F2}");
         }
 
         void SpawnRequest()
