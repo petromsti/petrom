@@ -126,7 +126,7 @@ namespace petrom
                     .ToArray();
                 _opts.RequestsPerSite = Math.Max(_opts.RequestsPerSite, 1);
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    _opts.RequestsPerSite = 80;//just for testing
+                    _opts.RequestsPerSite = 10;//just for testing
             }
             //replace old sites with new sites
             var oldSet = _urlStates.Select(x => x.Url).ToHashSet();
@@ -153,11 +153,13 @@ namespace petrom
         {
             _opts = new Opts();
             _urlStates = new List<UrlState>();
-            var handler = new HttpClientHandler();
+            var handler = new SocketsHttpHandler();
             handler.MaxConnectionsPerServer = 80;
             handler.UseProxy = false;
             handler.AllowAutoRedirect = true;
-            handler.UseDefaultCredentials = true;
+            //handler.UseDefaultCredentials = true;
+            handler.PooledConnectionIdleTimeout = TimeSpan.FromSeconds(6);
+            handler.PooledConnectionLifetime = TimeSpan.FromSeconds(6);
             _httpClient = new HttpClient(handler);
             _httpClient.Timeout = TimeSpan.FromSeconds(6);
 
