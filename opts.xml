@@ -2,6 +2,7 @@
 <RequestsPerSite>30</RequestsPerSite>
 <ReportNumRows>25</ReportNumRows>
 <Sites>
+    https://www.vesti.ru
     https://ddos-guard.net/ru
     https://stormwall.pro/
     https://qrator.net/ru/
