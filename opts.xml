@@ -1,7 +1,11 @@
 <Opts>
-<RequestsPerSite>30</RequestsPerSite>
+<RequestsPerSite>40</RequestsPerSite>
 <ReportNumRows>25</ReportNumRows>
 <Sites>
+    https://belsp.com/
+    https://www.sberbank.ru/ru/person
+    http://194.54.14.168/
+    http://5.188.189.254/
     https://www.vesti.ru
     https://ddos-guard.net/ru
     https://stormwall.pro/
@@ -18,22 +22,7 @@
     https://www.gazprom.ru/
     https://lukoil.ru/
     https://magnit.ru/
-    https://www.nornickel.com/
-    https://www.surgutneftegas.ru/
-    https://www.tatneft.ru/
-    https://www.evraz.com/ru/
-    https://nlmk.com/
-    https://www.sibur.ru/
-    https://www.severstal.com/
-    https://www.metalloinvest.com/
-    https://nangs.org/
     https://rmk-group.ru/ru/
-    https://www.tmk-group.ru/
-    https://www.polymetalinternational.com/ru/
-    https://www.uralkali.com/ru/
-    https://www.eurosib.ru/
-    https://ugmk.ua/
-    https://omk.ru/
     https://www.sberbank.ru
     https://www.gazprombank.ru/
     https://www.gosuslugi.ru/
@@ -58,14 +47,9 @@
     https://gazeta.ru/
     https://kp.ru/
     https://riafan.ru/
-    https://pikabu.ru/
     https://kommersant.ru/
     https://mk.ru/
-    https://bezformata.com/
     https://www.dme.ru
-    https://www.svo.aero
-    https://www.bestchange.ru
-    https://www.moex.com
     http://fss.gov.ru
     https://www.finambank.ru
     https://www.finam.ru
@@ -76,34 +60,6 @@
     https://www.vedomosti.ru
     https://vsesmi.online
     https://russian.rt.com
-    https://www.rossiya-airlines.com
-    http://www.gov.ru
-    https://pulkovoairport.ru
-    https://www.tutu.ru
-    https://vvo.aero
-    https://www.vnukovo.ru
-    https://www.vl.ru
-    https://aer.aero
-    https://cleanbtc.ru
-    https://bonkypay.com
-    https://changer.club
-    https://superchange.net
-    https://mine.exchange
-    https://platov.co
-    https://ww-pay.net
-    https://delets.cash
-    https://betatransfer.org
-    https://ramon.money
-    https://coinpaymaster.com
-    https://www.netex24.net
-    https://cashbank.pro
-    https://flashobmen.com
-    https://ychanger.net
-    https://multichange.net
-    https://24paybank.ne
-    https://royal.cash
-    https://prostocash.com
-    https://baksman.org
     https://my.bank-hlynov.ru
     https://link.centrinvest.ru
     https://chbrr.crimea.com
