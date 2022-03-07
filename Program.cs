@@ -82,11 +82,11 @@ namespace petrom
             25,
             10,
             10,
-            10,
-            10,
+            5,
+            7,
             18,
             5,
-            5
+            8
         };
 
         private StringBuilder _sb = new StringBuilder();
@@ -159,7 +159,7 @@ namespace petrom
             handler.AllowAutoRedirect = true;
             //handler.UseDefaultCredentials = true;
             handler.PooledConnectionIdleTimeout = TimeSpan.FromSeconds(6);
-            handler.PooledConnectionLifetime = TimeSpan.FromSeconds(6);
+            handler.PooledConnectionLifetime = TimeSpan.FromSeconds(24);
             _httpClient = new HttpClient(handler);
             _httpClient.Timeout = TimeSpan.FromSeconds(6);
 
@@ -242,7 +242,7 @@ namespace petrom
                     $"{url.AvgKbps:F2}",
                     $"{url.Num200Codes}/{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
                     $"{url.AvgRps:F2}",
-                    url.NumTimeouts.ToString()
+                    $"{url.NumTimeouts} ({url.NumTimeouts}/{url.NumTotalRequests}%)"
                 );
             }
 
