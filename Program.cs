@@ -126,7 +126,7 @@ namespace petrom
                     .ToArray();
                 _opts.RequestsPerSite = Math.Max(_opts.RequestsPerSite, 1);
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    _opts.RequestsPerSite = 2;//just for testing
+                    _opts.RequestsPerSite = 80;//just for testing
             }
             //replace old sites with new sites
             var oldSet = _urlStates.Select(x => x.Url).ToHashSet();
@@ -177,7 +177,7 @@ namespace petrom
 
             while (true)
             {
-                var maxPerTick = 150;
+                var maxPerTick = 15000;
                 //TODO: may not spawn enough
                 for (int i = 0; i < maxPerTick; ++i)
                 {
@@ -257,13 +257,15 @@ namespace petrom
             //what strategy shoud I use?
             //lets start with even reqs in flight per Url
             UrlState urlState = null;
+            int best = 0;
 
             foreach (var state in _urlStates)
             {
-                if (state.NumRequestsInFlight  < _opts.RequestsPerSite)
+                var d = _opts.RequestsPerSite - state.NumRequestsInFlight;
+                if (d > best)
                 {
                     urlState = state;
-                    break;
+                    best = d;
                 }
             }
 
