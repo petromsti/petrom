@@ -86,7 +86,7 @@ namespace petrom
             7,
             18,
             5,
-            8
+            12
         };
 
         private StringBuilder _sb = new StringBuilder();
@@ -242,7 +242,7 @@ namespace petrom
                     $"{url.AvgKbps:F2}",
                     $"{url.Num200Codes}/{url.Num300Codes}/{url.Num400Codes}/{url.Num500Codes}",
                     $"{url.AvgRps:F2}",
-                    $"{url.NumTimeouts} ({url.NumTimeouts}/{url.NumTotalRequests}%)"
+                    $"{url.NumTimeouts} ({url.NumTimeouts*100.0/url.NumTotalRequests:F1}%)"
                 );
             }
 
