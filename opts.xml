@@ -1,5 +1,5 @@
 <Opts>
-<RequestsPerSite>50</RequestsPerSite>
+<RequestsPerSite>30</RequestsPerSite>
 <ReportNumRows>25</ReportNumRows>
 <Sites>
     https://ddos-guard.net/ru
