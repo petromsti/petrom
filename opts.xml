@@ -2,14 +2,16 @@
 <RequestsPerSite>40</RequestsPerSite>
 <ReportNumRows>25</ReportNumRows>
 <Sites>
+https://www.nornickel.com
+https://www.surgutneftegas.ru
+https://www.nlmk.com
+https://www.metalloinvest.com
     https://belsp.com/
     https://www.sberbank.ru/ru/person
     http://194.54.14.168/
     http://5.188.189.254/
     https://www.vesti.ru
-    https://ddos-guard.net/ru
     https://stormwall.pro/
-    https://qrator.net/ru/
     https://solidwall.ru/
     http://government.ru/
     https://xn--90aivcdt6dxbc.xn--p1ai/
@@ -19,9 +21,6 @@
     https://pwd.wto.economy.gov.ru/
     https://stroi.gov.ru/
     https://proverki.gov.ru/
-    https://www.gazprom.ru/
-    https://lukoil.ru/
-    https://magnit.ru/
     https://rmk-group.ru/ru/
     https://www.sberbank.ru
     https://www.gazprombank.ru/
@@ -61,8 +60,5 @@
     https://vsesmi.online
     https://russian.rt.com
     https://my.bank-hlynov.ru
-    https://link.centrinvest.ru
-    https://chbrr.crimea.com
-    https://enter.unicredit.ru
 </Sites>
 </Opts>
