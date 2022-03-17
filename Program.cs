@@ -154,7 +154,7 @@ namespace petrom
             _opts = new Opts();
             _urlStates = new List<UrlState>();
             var handler = new SocketsHttpHandler();
-            handler.MaxConnectionsPerServer = 80;
+            handler.MaxConnectionsPerServer = 150;
             handler.UseProxy = false;
             handler.AllowAutoRedirect = true;
             //handler.UseDefaultCredentials = true;
