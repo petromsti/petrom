@@ -1,5 +1,5 @@
 <Opts>
-<RequestsPerSite>100</RequestsPerSite>
+<RequestsPerSite>60</RequestsPerSite>
 <ReportNumRows>25</ReportNumRows>
 <Sites>
 https://5.8.79.230
