@@ -160,6 +160,11 @@ namespace petrom
             //handler.UseDefaultCredentials = true;
             handler.PooledConnectionIdleTimeout = TimeSpan.FromSeconds(6);
             handler.PooledConnectionLifetime = TimeSpan.FromSeconds(24);
+            handler.SslOptions.RemoteCertificateValidationCallback +=
+                (sender, certificate, chain, errors) =>
+                {
+                    return true;
+                };
             _httpClient = new HttpClient(handler);
             _httpClient.Timeout = TimeSpan.FromSeconds(6);
 
